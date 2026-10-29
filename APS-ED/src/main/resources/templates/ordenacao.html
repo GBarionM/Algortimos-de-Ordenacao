@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Painel de Monitoramento - Relatório Paginado</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<div class="container">
+
+    <h1>Painel de Análise Geográfica de Queimadas (INPE)</h1>
+    <p>Configure os filtros abaixo para rodar e visualizar o relatório completo de dados ordenados.</p>
+
+    <!-- FILTROS -->
+    <div class="painel">
+        <h2>Filtros e Configurações de Performance</h2>
+        <form method="get" th:action="@{/ordenacao}">
+            <input type="hidden" name="page" value="1"> <!-- volta à página 1 ao mudar filtros -->
+
+            <div class="filtros-grid">
+                <div>
+                    <label for="algoritmo">Algoritmo de Ordenação:</label>
+                    <select id="algoritmo" name="algoritmo" onchange="this.form.submit()">
+                        <option value="quick" th:selected="${algoritmoSelecionado == 'quick'}">⚡ Quick Sort</option>
+                        <option value="merge" th:selected="${algoritmoSelecionado == 'merge'}">🧬 Merge Sort</option>
+                        <option value="insertion" th:selected="${algoritmoSelecionado == 'insertion'}">🃏 Insertion Sort</option>
+                        <option value="selection" th:selected="${algoritmoSelecionado == 'selection'}">🔍 Selection Sort</option>
+                        <option value="bubble" th:selected="${algoritmoSelecionado == 'bubble'}">🐢 Bubble Sort</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="criterio">Critério de Ordenação:</label>
+                    <select id="criterio" name="criterio" onchange="this.form.submit()">
+                        <option value="municipio" th:selected="${criterioSelecionado == 'municipio'}">📍 Município (Alfabética)</option>
+                        <option value="bioma" th:selected="${criterioSelecionado == 'bioma'}">🌱 Bioma</option>
+                        <option value="data" th:selected="${criterioSelecionado == 'data'}">📅 Data de Detecção</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- MÉTRICAS -->
+    <div class="painel metricas-box">
+        <h3>⚡ Estatísticas de Processamento da Carga</h3>
+        <p class="desc-metricas">Custo computacional total para ordenar os <strong><span th:text="${pagina.totalElementos}"></span> registros reais</strong> carregados:</p>
+        <div class="cards-metricas">
+            <div class="card-m">
+                <span>Comparações</span>
+                <strong th:text="${#numbers.formatInteger(metricas.comparacoes, 1, 'POINT')}">0</strong>
+            </div>
+            <div class="card-m">
+                <span>Atribuições/Escritas</span>
+                <strong th:text="${#numbers.formatInteger(metricas.escritas, 1, 'POINT')}">0</strong>
+            </div>
+            <div class="card-m">
+                <span>Tempo Gasto</span>
+                <strong class="tempo-txt" th:text="${#numbers.formatDecimal(metricas.tempoMs, 1, 4)} + ' ms'">0.00 ms</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABELA DE DADOS -->
+    <div class="painel">
+        <h2>Visualização dos Dados Ordenados</h2>
+        <div class="tabela">
+            <table>
+                <thead>
+                <tr>
+                    <th>📍 Município</th>
+                    <th>🌱 Bioma</th>
+                    <th>📅 Data/Hora Registro (GMT)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${pagina.conteudo}">
+                    <td class="nome-algoritmo" th:text="${f.municipio}"></td>
+                    <td th:text="${f.bioma}"></td>
+                    <td th:text="${f.data}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINAÇÃO -->
+        <div class="paginacao-container">
+            <div class="info-pag">
+                Página <strong th:text="${pagina.paginaAtual}">1</strong> de <strong th:text="${pagina.totalPaginas}">1</strong>
+                (Exibindo registros de <span th:text="${pagina.primeiroRegistro}"></span> a <span th:text="${pagina.ultimoRegistro}"></span>)
+            </div>
+
+            <div class="botoes-pag">
+                <a th:if="${pagina.hasAnterior()}"
+                   th:href="@{/ordenacao(algoritmo=${algoritmoSelecionado}, criterio=${criterioSelecionado}, page=${pagina.paginaAtual - 1})}"
+                   class="btn-nav">⬅️ Anterior</a>
+                <span th:unless="${pagina.hasAnterior()}" class="btn-nav desabilitado">⬅️ Anterior</span>
+
+                <a th:if="${pagina.hasProximo()}"
+                   th:href="@{/ordenacao(algoritmo=${algoritmoSelecionado}, criterio=${criterioSelecionado}, page=${pagina.paginaAtual + 1})}"
+                   class="btn-nav">Próximo ➡️</a>
+                <span th:unless="${pagina.hasProximo()}" class="btn-nav desabilitado">Próximo ➡️</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
