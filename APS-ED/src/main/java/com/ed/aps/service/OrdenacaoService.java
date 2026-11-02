@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 public class OrdenacaoService {
 
-    private static final String ARQUIVO_CSV = "focos_br_sp_ref_2023.csv";
+    private static final String ARQUIVO_CSV = "focos_br_sp_ref_2023_2024.csv";
     private static final int TAMANHO_PAGINA = 50;
 
     private final AlgoritmosOrdenacao algoritmos = new AlgoritmosOrdenacao();
